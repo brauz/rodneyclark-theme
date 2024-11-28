@@ -1,0 +1,623 @@
+{% liquid
+  assign isGiftcard = false
+  if template contains 'gift-card' or product.gift_card?
+    assign class_inner = 'pt-5 pb-8'
+    assign isGiftcard = true
+  else
+    assign class_inner = 'py-8'
+  endif
+  assign title = 'product.general.recently_viewed' | t
+  assign available = product.available
+%}
+{% assign tag_horizontal_position = section.settings.product_tag_horizontal_position %}
+{% assign tag_vertical_position = section.settings.product_tag_vertical_position %}
+
+{%- assign isHideModelSize = true -%}
+
+{%- for variant in product.variants  -%}
+  {% if variant.metafields.variant.model_images.value != blank %}
+    {%- assign isHideModelSize = false -%}
+    {% break %}
+  {% endif %}
+{%- endfor -%}
+
+{%- render 'anchor-section' -%}
+<product-main
+  class="js-anchor-section js-product-main gap-20 flex flex-col md:flex-row md:pt-4 pr-0 md:pr-20 "
+  id="product-details"
+  data-title="Details"
+  data-handle="{{- product.handle -}}"
+>
+  <div class="flex-auto overflow-hidden product-gallery hidden md:block relative">
+    {% comment %} Main Product Hero Image {% endcomment %}
+    {%- render 'product-gallery-swiper', enable_zoom: section.settings.enable_gallery_zoom, tag_horizontal_position: tag_horizontal_position, tag_vertical_position: tag_vertical_position, isHideModelSize: isHideModelSize  -%}
+
+      {% for block in section.blocks %}
+        {% case block.type %}
+        {% when 'searchspring_recommend' %}
+          <div class="hidden md:block">
+            {% if settings.ss_enable %}
+              <script type="searchspring/personalized-recommendations" profile="new-design">
+                  seed = "{{ product.variants[0].sku }}";
+              </script>
+            {% else %}
+              {% render 'product-ss-recommendation', block: block %}
+            {% endif %}
+          </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+
+  <div class="w-full relative flex-shrink-0 px-4 md:px-0 mb-8 md:mb-20 md:w-[300px] lg:w-[360px] 2xl:max-w-[480px] 2xl:w-full 3xl:max-w-full 3xl:w-1/3 2xl:min-w-[480px] 2xl:min-h-[500px]">
+    <div class="h-full">
+      <div class="md:sticky md:top-[190px]">
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when 'sm_product_gallery' %}
+              <div class="md:hidden">
+                {%- render 'product-zoom', enable_zoom: block.settings.enable_gallery_zoom, tag_horizontal_position: tag_horizontal_position, tag_vertical_position: tag_vertical_position, isHideModelSize: isHideModelSize  -%}
+              </div>
+            {% when 'text' %}
+              <div class="flex items-center mb-4">
+                {%- if block.settings.text_icon != blank -%}
+                  {%- render 'image', image: block.settings.text_icon, class: 'w-5 mr-2 object-contain' -%}
+                {%- endif -%}
+                <span class="text-base xsSpacing text-grey-700 [&>p>a]:underline">{{ block.settings.text }}</span>
+              </div>
+            {% when 'product_form' %}
+              {%- if block.settings.condition_show_freeshipping != blank -%}
+                {%- assign freeshipping = block.settings.condition_show_freeshipping -%}
+              {%- endif -%}
+              {%- assign threshold_low_stock = block.settings.threshold_low_stock -%}
+              {%- render 'product-form' -%}
+            {% when 'product_delivery' %}
+              {%- assign free_delivery_text = block.settings.free_delivery_text -%}
+              {%- assign free_delivery_icon = block.settings.free_delivery_icon -%}
+              {% if settings.cart_threhold_amount != blank %}
+                <div class="flex items-center mt-4 mb-4 md:mb-5">
+                  {%- if free_delivery_icon != blank -%}
+                    {%- render 'image', image: free_delivery_icon, class: 'w-5 mr-2 object-contain' -%}
+                  {%- endif -%}
+                  <span class="text-base tracking-xsSpacing">{{ free_delivery_text }}</span>
+                </div>
+              {% endif %}
+            {% when 'product_no_returns' %}
+                {%- assign no_return = block.settings.no_return -%}
+                {%- assign no_return_icon = block.settings.no_return_icon -%}
+                {% render 'product-no-returns' %}
+            {% when 'product_info' %}
+              {%- assign show_vendor = block.settings.show_vendor -%}
+              {%- assign md_title_size = block.settings.md_title_size | json -%}
+              {%- assign sm_title_size = block.settings.sm_title_size | json -%}
+              {%- render 'product-info',
+                md_title_size: md_title_size,
+                sm_title_size: sm_title_size,
+                show_vendor: show_vendor
+              -%}
+            {% when 'product_price' %}
+              {%- assign sm_price_size = block.settings.sm_price_size | json -%}
+              {%- assign md_price_size = block.settings.md_price_size | json -%}
+              {%- render 'product-price',
+                sm_price_size: sm_price_size,
+                md_price_size: md_price_size
+              -%}
+            {% when 'afterpay' %}
+              {%- render 'product-afterpay',
+                afterpay_desktop: block.settings.afterpay_desktop,
+                afterpay_mobile: block.settings.afterpay_mobile,
+                paypal_page: block.settings.paypal_page
+              -%}
+              <product-afterpay></product-afterpay>
+            {% when 'custom_banner' %}
+              {%- unless template contains 'gift-card' or product.gift_card? -%}
+                {%- render 'promo-banner',
+                  banner_text: block.settings.banner_text,
+                  banner_icon: block.settings.banner_icon,
+                  banner_background: block.settings.banner_background,
+                  banner_color: block.settings.banner_color
+                -%}
+              {%- endunless -%}
+            {% when 'loox_review' %}
+              <a class="items-start md:flex flex-col xl:items-end xl:absolute xl:right-0 xl:top-0 xl:z-19 block mb-4 md:mb-0" href="#looxReviews">
+                <div class="flex look-review">
+                  <div
+                    class="loox-rating flex xl:mb-1"
+                    data-id="{{ product.id }}"
+                    data-rating="{{ product.metafields.loox.avg_rating }}"
+                  ></div>
+
+                  <span class="ml-1.5 font-bold text-xs text-grey-700 tracking-xsSpacing empty:hidden">{{ product.metafields.loox.avg_rating }}</span>
+
+                  {%- if product.metafields.loox.num_reviews != blank -%}
+                    <span class="text-base text-gray-700 tracking-xsSpacing ml-1.5 underline">({{ product.metafields.loox.num_reviews }})</span>
+                  {%- endif -%}
+                </div>
+                <span class="text-base text-gray-700 tracking-xsSpacing underline">Write a review</span>
+              </a>
+            {% when 'book_an_instore' %}
+              {%- if isGiftcard == false  -%}
+                {%- render 'book-an-instore', available: available -%}
+              {%- endif -%}
+            {% when 'find_an_instore' %}
+              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4">
+                <div id="brauz-find-in-store-config-product-page" data-sd="{{ shop.permanent_domain }}"
+                  data-cvi="{{ product.first_available_variant.id }}" data-hodv="{{ product.has_only_default_variant }}"
+                  class="flex items-center justify-center z-0 w-full"><span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
+                    In-store</span></div>
+                <div id="brauz-find-in-store-product-page" class="absolute inset-0 w-full opacity-0 z-10 overflow-hidden"></div>
+                <script
+                  src="https://d3aq2u4yw77ivo.cloudfront.net/find-in-store/shopify/rodneyclark/find-in-store.shopify.rodneyclark.prod.js"
+                  async></script>
+              </button>
+            {% when 'image_text' %}
+              <div class="block">
+                <span class="font-bold text-base tracking-xsSpacing text-grey-900">{{ block.settings.text_w_heading }}</span>
+                <a class="block" href="{{ block.settings.text_w_link }}">
+                  {%- render 'image', image: block.settings.text_w_image, class: 'w-full object-contain' -%}
+                </a>
+              </div>
+            {% when 'image_text_form' %}
+              {%- assign text_w_image = block.settings.text_w_image | json -%}
+            {% when 'accordion_info' %}
+              <div class="w-full px-4 bg-grey-100 mb-4 md:mb-5 product-accordion-info inline-block">
+                {% if block.settings.show_description %}
+                  {%- capture accordion_items -%}
+                    {% if block.settings.accordion_info_heading %}
+                      {%- render 'accordion-item',
+                      title: block.settings.accordion_info_heading,
+                      description: product.description,
+                      class: '',
+                      title_class: 'text-lg tracking-xsSpacing font-bold capitalize',
+                      enable_wysiwyg: true,
+                      class_heading: 'text-lg',
+                      class_icon: 'scale-150',
+                      open_first: true,
+                      chevron_icon: true,
+                      wysiwyg_class: 'wysiwyg-product [&_strong]:text-grey-900 [&_ul]:mt-3 [&_ul]:mb-4' -%}
+                    {% endif %}
+                  {%- endcapture -%}
+
+                  {%- if accordion_items -%}
+                    {%- render 'accordion-list', items: accordion_items, class: 'block' -%}
+                  {%- endif -%}
+                {% else %}
+                  {%- capture accordion_items -%}
+                    {% if block.settings.accordion_info_heading %}
+                      {%- render 'accordion-item',
+                      title: block.settings.accordion_info_heading,
+                      description: block.settings.accordion_info_content,
+                      class: '',
+                      title_class: 'text-lg tracking-xsSpacing font-bold capitalize',
+                      enable_wysiwyg: true,
+                      class_heading: 'text-lg',
+                      class_icon: 'scale-150',
+                      open_first: false,
+                      chevron_icon: true,
+                      wysiwyg_class: 'wysiwyg-product' -%}
+                    {% endif %}
+                  {%- endcapture -%}
+
+                  {%- if accordion_items -%}
+                    {%- render 'accordion-list', items: accordion_items, class: 'block' -%}
+                  {%- endif -%}
+                {% endif %}
+              </div>
+            {% when 'searchspring_recommend' %}
+              <div class="block md:hidden">
+                {% if settings.ss_enable %}
+                  <script type="searchspring/personalized-recommendations" profile="new-design">
+                      seed = "{{ product.variants[0].sku }}";
+                  </script>
+                {% else %}
+                  {% render 'product-ss-recommendation', block: block %}
+                {% endif %}
+              </div>
+          {% endcase %}
+        {% endfor %}
+        <div class="inline-block"></div>
+      </div>
+    </div>
+    <script>
+      var productState = {
+        initProduct: {{ product | json }},
+        initVariantImages: [
+        {%- for variant in product.variants -%}
+          {% if variant.metafields.variant.model_images.value != blank %}
+            {
+              variantId: {{- variant.id -}},
+              imageList: {{ variant.metafields.variant.model_images.value | json }}
+            }
+            {% unless forloop.last %},{% endunless %}
+          {% endif %}
+        {%- endfor -%}
+      ],
+        sizes: [
+          {% for variant in product.variants %}
+            {
+              variantId: {{ variant.id | json }},
+              variantTitle: {{ variant.title | json }},
+              inventoryAvailable: {{ variant.inventory_quantity }}
+            }{% unless forloop.last %},{% endunless %}
+          {% endfor %}
+        ],
+        thresholdLowStock: {{ threshold_low_stock | json }},
+        initVariant: {{ product.selected_or_first_available_variant | json }},
+        isGiftCard:{% if template contains 'gift-card' or product.gift_card? %}true
+        {%- else -%}
+          false
+        {% endif %},
+        {% if text_w_image %}
+        text_w_image: {{ text_w_image }},
+        {% endif %}
+        afterpayEnable: {{ settings.product_afterpay_enable | json }},
+        NoReturnsTextText: {{ no_return | json }},
+        NoReturnsTextIcon: {{ no_return_icon | json }},
+        freeshipping:{% if freeshipping %}{{ freeshipping }}
+        {%- else -%}
+          false
+        {% endif %},
+        show_vendor: {{ show_vendor | json }},
+        {%- if product.metafields.custom.linked_products.value != blank -%}
+        {%- capture data_product_link -%}
+        [{%- for product in product.metafields.custom.linked_products.value -%}
+        {%- render 'product-json', item: product -%}{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}]
+        {%- endcapture -%}
+          productLink : {{ data_product_link }},
+        {%- endif -%}
+        {%- if product.metafields.custom.style_notes.value != blank -%}
+          productStyleNotes : {{ product.metafields.custom.style_notes.value | json }},
+        {%- endif -%}
+        {%- if product.metafields.custom.fabric.value != blank -%}
+          productFabric:{{- product.metafields.custom.fabric.value | json -}},
+        {%- endif -%}
+        {%- if product.metafields.custom.description.value != blank -%}
+          productDescription: {{ product.metafields.custom.description.value | json }},
+        {%- endif -%}
+        {%- if product.metafields.custom.product_code.value != blank -%}
+          productCode: {{ product.metafields.custom.product_code.value | json }}
+        {%- endif -%}
+        }
+
+        var pdpState = {
+          translates: {
+            notifyMe: {{ 'product.general.notify_me' | t | json }},
+            notifyMeWhenAvailable: {{ 'product.general.notify_me_when_available' | t | json }},
+            subtextNotifyMe: {{ 'product.general.subtext_notify_me' | t | json }},
+            comingSoon: {{ 'product.general.coming_soon' | t | json }},
+            soldOut: {{ 'product.general.sold_out' | t | json }},
+            buyNowPayLate: {{ 'product.general.buy_now_pay_late' | t | json }},
+            info: {{ 'product.general.info' | t | json }}
+          }
+        }
+
+        function assignVariantMetafields() {
+          if (! productState || ! productState.initProduct || ! productState.initProduct.variants || ! productState.initProduct.variants.length) {
+            return
+        }
+        {% for variant in product.variants %}
+          if (productState.initProduct.variants[{{- forloop.index0 -}}]) {
+            productState.initProduct.variants[{{- forloop.index0 -}}].metafields = {% render 'product-variant-json-meta', variant: variant %}
+        }
+      {% endfor %}
+      }
+      assignVariantMetafields()
+    </script>
+  </div>
+</product-main>
+
+{%- capture src_url -%}
+  {{- 'section-product-main.js' | asset_url -}}
+{%- endcapture -%}
+
+{%- render 'atom_script', src: src_url, priority: 'important', type: 'defer' -%}
+
+{%- capture src_url_1 -%}
+  {{- 'section-product-custom-app.js' | asset_url -}}
+{%- endcapture -%}
+
+{%- render 'atom_script', src: src_url_1, priority: 'normal', type: 'defer' -%}
+
+{% schema %}
+{
+  "name": "Product main",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_gallery_zoom",
+      "label": "Enable Lightbox",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "product_tag_horizontal_position",
+      "label": "Product Tag Horizontal Position",
+      "options": [
+        { "value": "left-3 md:left-4", "label": "Left" },
+        { "value": "left-center", "label": "Center" },
+        { "value": "right-3 md:right-4", "label": "Right" }
+      ],
+      "default": "left-center"
+    },
+    {
+      "type": "select",
+      "id": "product_tag_vertical_position",
+      "label": "Product Tag Vertical Position",
+      "options": [
+        { "value": "top-3 md:top-4", "label": "Top" },
+        { "value": "top-[50%]", "label": "Middle" },
+        { "value": "bottom-3 md:bottom-4", "label": "Bottom" }
+      ],
+      "default": "top-[50%]"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "sm_product_gallery",
+      "name": "Product Gallery(mobile)",
+      "settings": [
+        {
+        "type": "checkbox",
+        "id": "enable_gallery_zoom",
+        "label": "Enable Lightbox",
+        "default": true
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text Block",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "image_picker",
+          "id": "text_icon",
+          "label": "Text Icon"
+        }
+      ]
+    },
+    {
+      "type": "product_delivery",
+      "name": "Product Free Delivery",
+      "settings": [
+        {
+          "type": "text",
+          "id": "free_delivery_text",
+          "label": "Free Delivery Text:",
+          "default": "Free domestic delivery for orders"
+        },
+        {
+          "type": "image_picker",
+          "id": "free_delivery_icon",
+          "label": "Free Delivery Icon:"
+        }
+      ]
+    },
+    {
+      "type": "product_no_returns",
+      "name": "Product No Returns",
+      "settings": [
+        {
+          "type": "text",
+          "id": "no_return",
+          "label": "No return Text:",
+          "default": "No returns on sale items"
+        },
+        {
+          "type": "image_picker",
+          "id": "no_return_icon",
+          "label": "No Returns Icon:"
+        }
+      ]
+    },
+    {
+      "type": "product_form",
+      "name": "Product Form",
+      "settings": [
+        {
+          "type": "range",
+          "id": "threshold_low_stock",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "label": "Stock Alert Threshold",
+          "default": 5
+        },
+        {
+          "type": "text",
+          "id": "condition_show_freeshipping",
+          "label": "Only show \"ships free\" if product is over:"
+        }
+      ]
+    },
+    {
+      "type": "product_info",
+      "name": "Product Info",
+      "settings": [
+        {
+          "type": "range",
+          "id": "md_title_size",
+          "min": 16,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Desktop Title size",
+          "default": 24
+        },
+        {
+          "type": "range",
+          "id": "sm_title_size",
+          "min": 16,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Title size",
+          "default": 20
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Show Vendor",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "product_price",
+      "name": "Product Price",
+      "settings": [
+        {
+          "type": "range",
+          "id": "md_price_size",
+          "min": 16,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Desktop Price size",
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "sm_price_size",
+          "min": 16,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Mobile Price size",
+          "default": 20
+        }
+      ]
+    },
+    {
+      "type": "loox_review",
+      "name": "Loox Reviews"
+    },
+    {
+      "type": "custom_banner",
+      "name": "Custom banner",
+      "settings": [
+        {
+          "type": "text",
+          "id": "banner_text",
+          "label": "Banner Text:",
+          "info": "If the banner text is empty. The Banner will display as the old logic(metafield)"
+        },
+        {
+          "type": "image_picker",
+          "id": "banner_icon",
+          "label": "Banner icon"
+        },
+        {
+          "type": "color_background",
+          "id": "banner_background",
+          "label": "Banner background",
+          "default": "#0e1735"
+        },
+        {
+          "type": "color",
+          "id": "banner_color",
+          "label": "Banner color",
+          "default": "#000000"
+        }
+      ]
+    },
+    {
+      "type": "afterpay",
+      "name": "Product Afterpay",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "afterpay_desktop",
+          "label": "Image afterpay modal dekstop"
+        },
+        {
+          "type": "image_picker",
+          "id": "afterpay_mobile",
+          "label": "Image afterpay modal mobile"
+        },
+        {
+          "type": "image_picker",
+          "id": "paypal_page",
+          "label": "Image paypal modal dekstop"
+        }
+      ]
+    },
+    {
+      "type": "image_text_form",
+      "name": "Image in Product Form",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "text_w_image",
+          "label": "Image"
+        },
+      ]
+    },
+    {
+      "type": "image_text",
+      "name": "Text with image feature",
+      "settings": [
+        {
+          "type": "text",
+          "id": "text_w_heading",
+          "label": "Heading"
+        },
+        {
+          "type": "image_picker",
+          "id": "text_w_image",
+          "label": "Image"
+        },
+        {
+          "type": "url",
+          "id": "text_w_link",
+          "label": "Link"
+        }
+      ]
+    },
+    {
+      "type": "book_an_instore",
+      "name": "Book An Instore"
+    },
+    {
+      "type": "find_an_instore",
+      "name": "Find InStore"
+    },
+    {
+      "type": "accordion_info",
+      "name": "Accordion Info",
+      "settings": [
+        {
+          "type": "text",
+          "id": "accordion_info_heading",
+          "label": "Accordion Info Heading",
+          "default": "FEATURES, FIT & FABRIC"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_description",
+          "label": "Use Product description as content?",
+          "default": true
+        },
+        {
+          "type": "richtext",
+          "id": "accordion_info_content",
+          "label": "Fit Fact Content"
+        }
+      ]
+    },
+    {
+      "type": "searchspring_recommend",
+      "name": "SS Recommendation"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product main"
+    }
+  ]
+}
+{% endschema %}
