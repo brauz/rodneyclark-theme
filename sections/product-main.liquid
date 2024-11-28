@@ -139,7 +139,7 @@
                 {%- render 'book-an-instore', available: available -%}
               {%- endif -%}
             {% when 'find_an_instore' %}
-              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4">
+              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4" onclick="window.Brauz_helper_openStoreSelectorModal()">
                 <span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
                     In-store</span>
               </button>
