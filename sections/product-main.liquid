@@ -140,14 +140,8 @@
               {%- endif -%}
             {% when 'find_an_instore' %}
               <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4">
-                <div id="brauz-find-in-store-config-product-page" data-sd="{{ shop.permanent_domain }}"
-                  data-cvi="{{ product.first_available_variant.id }}" data-hodv="{{ product.has_only_default_variant }}"
-                  class="flex items-center justify-center z-0 w-full"><span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
-                    In-store</span></div>
-                <div id="brauz-find-in-store-product-page" class="absolute inset-0 w-full opacity-0 z-10 overflow-hidden"></div>
-                <script
-                  src="https://d3aq2u4yw77ivo.cloudfront.net/find-in-store/shopify/rodneyclark/find-in-store.shopify.rodneyclark.prod.js"
-                  async></script>
+                <span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
+                    In-store</span>
               </button>
             {% when 'image_text' %}
               <div class="block">
