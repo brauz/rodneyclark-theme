@@ -139,7 +139,7 @@
                 {%- render 'book-an-instore', available: available -%}
               {%- endif -%}
             {% when 'find_an_instore' %}
-              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4" onclick="window.Brauz_helper_openStoreSelectorModal()">
+              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4" onclick="window.Brauz_open_reserve_in_store_dialog()">
                 <span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
                     In-store</span>
               </button>
@@ -152,7 +152,7 @@
               >
               </div>
               <div id="brauz-find-in-store-product-page" class="w-full"></div>
-              <script src="https://d3aq2u4yw77ivo.cloudfront.net/find-in-store/shopify/rodneyclark/find-in-store.shopify.rodneyclark.prod.js" async></script>
+              <script src="https://d3aq2u4yw77ivo.cloudfront.net/reserve-in-store/rodneyclark/reserve-in-store.shopify.rodneyclark.prod.js" async></script>
             {% when 'image_text' %}
               <div class="block">
                 <span class="font-bold text-base tracking-xsSpacing text-grey-900">{{ block.settings.text_w_heading }}</span>
