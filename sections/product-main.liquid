@@ -114,7 +114,8 @@
                   banner_text: block.settings.banner_text,
                   banner_icon: block.settings.banner_icon,
                   banner_background: block.settings.banner_background,
-                  banner_color: block.settings.banner_color
+                  banner_color: block.settings.banner_color,
+                  collection_title: collection.title
                 -%}
               {%- endunless -%}
             {% when 'loox_review' %}
@@ -139,20 +140,16 @@
                 {%- render 'book-an-instore', available: available -%}
               {%- endif -%}
             {% when 'find_an_instore' %}
-              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4" onclick="window.Brauz_open_reserve_in_store_dialog()">
-                <span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
-                    In-store</span>
+              <button class="find-an-instore flex items-center justify-center border border-focus py-4 rounded-sm w-full relative text-center mt-3 md:mt-4 mb-3 md:mb-4">
+                <div id="brauz-find-in-store-config-product-page" data-sd="{{ shop.permanent_domain }}"
+                  data-cvi="{{ product.first_available_variant.id }}" data-hodv="{{ product.has_only_default_variant }}"
+                  class="flex items-center justify-center z-0 w-full"><span class="font-medium text-sm tracking-lgSpacing text-grey-900 uppercase">Find & Reserve
+                    In-store</span></div>
+                <div id="brauz-find-in-store-product-page" class="absolute inset-0 w-full opacity-0 z-10 overflow-hidden"></div>
+                <script
+                  src="https://d3aq2u4yw77ivo.cloudfront.net/find-in-store/shopify/rodneyclark/find-in-store.shopify.rodneyclark.prod.js"
+                  async></script>
               </button>
-            {% when 'find_an_instore_section' %}
-              <div
-                id="brauz-find-in-store-config-product-page"
-                data-sd="{{ shop.permanent_domain }}"
-                data-cvi="{{ product.first_available_variant.id }}"
-                data-hodv="{{ product.has_only_default_variant }}"
-              >
-              </div>
-              <div id="brauz-find-in-store-product-page" class="w-full"></div>
-              <script src="https://d3aq2u4yw77ivo.cloudfront.net/reserve-in-store/rodneyclark/reserve-in-store.shopify.rodneyclark.prod.js" async></script>
             {% when 'image_text' %}
               <div class="block">
                 <span class="font-bold text-base tracking-xsSpacing text-grey-900">{{ block.settings.text_w_heading }}</span>
@@ -589,10 +586,6 @@
     {
       "type": "find_an_instore",
       "name": "Find InStore"
-    },
-    {
-      "type": "find_an_instore_section",
-      "name": "Find InStore Section"
     },
     {
       "type": "accordion_info",
